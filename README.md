@@ -36,6 +36,6 @@ Copy the files into your /local/colle directory. Add the functions to your rest-
 
 Author
 ------
-Mohammad Fathul'ibad
-Fardan Al Jihad
-Annisa Dinda Gantini
+- Mohammad Fathul'ibad
+- Fardan Al Jihad
+- Annisa Dinda Gantini
