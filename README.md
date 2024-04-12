@@ -6,7 +6,7 @@ The local plugin is designed to provide essential functionalities required by th
 Some example calls to the webservice function:
 
 * Create Quiz:
-  https://yoursite.com/webservice/rest/server.php?wstoken=yOurT0k3n&moodlewsrestformat=json&wsfunction=local_colle_create_quiz&courseid=4&quizname=Quiz Name
+  https://yoursite.com/webservice/rest/server.php?wstoken=yOurT0k3n&moodlewsrestformat=json&wsfunction=local_colle_create_quiz&courseid=4&quizname=QuizName
 
 * Get All Quiz:
   https://yoursite.com/webservice/rest/server.php?wstoken=yOurT0k3n&moodlewsrestformat=json&wsfunction=local_colle_get_all_quiz
@@ -14,7 +14,7 @@ Some example calls to the webservice function:
 * Get Quiz Created by Specific Teacher:
   https://yoursite.com/webservice/rest/server.php?wstoken=yOurT0k3n&moodlewsrestformat=json&wsfunction=local_colle_get_quiz&userid=4
 
-* Get Context Id from Module:
+* Get Context ID from Module:
   https://yoursite.com/webservice/rest/server.php?wstoken=yOurT0k3n&moodlewsrestformat=json&wsfunction=local_colle_get_context_id&courseid=2&quizid=1
 
 
