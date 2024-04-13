@@ -65,4 +65,12 @@ $functions = array(
         'type' => 'read',
         'capabilities' => '',
     ),
+    'local_colle_get_user_best_grades_by_quiz' => array(
+        'classname' => 'local_colle_external',
+        'methodname' => 'get_user_best_grades_by_quiz',
+        'classpath' => 'local/colle/externallib.php',
+        'description' => 'Return a best grades for the given user and quiz.',
+        'type' => 'read',
+        'capabilities' => '',
+    ),
 );

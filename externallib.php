@@ -437,4 +437,89 @@ class local_colle_external extends external_api {
             ])
         );
     }
+
+    /**
+     * Describes the parameters for get_user_best_grades_by_quiz().
+     *
+     * @return external_function_parameters.
+     * @since Moodle 4.3
+     */
+    public static function get_user_best_grades_by_quiz_parameters() {
+        return new external_function_parameters (
+            [
+                'quizid' => new external_value(PARAM_INT, 'quiz instance id'),
+                'userid' => new external_value(PARAM_INT, 'user id, empty for current user', VALUE_DEFAULT, 0),
+
+            ]
+        );
+    }
+
+    /**
+     * Return a list of attempts for the given quiz and user.
+     *
+     * @param int $quizid quiz instance id
+     * @param int $userid user id
+     * @return array of warnings and the list of attempts
+     * @since Moodle 4.3
+     */
+    public static function get_user_best_grades_by_quiz($quizid, $userid = 0) {
+
+        $host = 'localhost';
+        $token = '5a4312e6b23ceb3808e9551a5cb03b37';
+
+        $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=mod_quiz_get_user_attempts&moodlewsrestformat=json&quizid=$quizid&userid=$userid";
+        $response = file_get_contents($url);
+        $data = json_decode($response, true);
+
+        $highest_sumgrades = 0;
+        $attemptid = 0;
+        $instance = 0; // quiz id
+
+        foreach ($data['attempts'] as $attempt) {
+            if ($attempt['sumgrades'] >= $highest_sumgrades) {
+                $highest_sumgrades = $attempt['sumgrades'];
+                $attemptid = $attempt['id'];
+                $instance = $attempt['quiz'];
+                $state = $attempt['state'];
+                $timefinish = $attempt['timefinish'];
+            }
+        }
+
+        $timefinishstr = date('Y-m-d H:i:s', $timefinish);
+
+        $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=core_course_get_course_module_by_instance&moodlewsrestformat=json&module=quiz&instance=$instance";
+        $response = file_get_contents($url);
+        $data = json_decode($response, true);
+
+        $cmid = $data['cm']['id'];
+        $cmname = $data['cm']['name'];
+
+        $result[] = array(
+            'name' => $cmname,
+            'status' => $state,
+            'timefinish' => $timefinishstr,
+            'sumgrades' => $highest_sumgrades,
+            'url' => "http://$host/moodle/mod/quiz/review.php?attempt=$attemptid&cmid=$cmid"
+        );
+
+        return $result;
+    }
+
+    /**
+     * Describes the get_user_best_grades_by_quiz return value.
+     *
+     * @return external_multiple_structure
+     * @since Moodle 4.3
+     */
+    public static function get_user_best_grades_by_quiz_returns() {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'name' => new external_value(PARAM_TEXT, 'quiz name'),
+                'status' => new external_value(PARAM_TEXT, 'quiz status'),
+                'timefinish' => new external_value(PARAM_TEXT, 'time finish'),
+                'sumgrades' => new external_value(PARAM_INT, 'user best grades'),
+                'url' => new external_value(PARAM_TEXT, 'review url')
+            ])
+        );
+    }
 }
