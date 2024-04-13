@@ -369,8 +369,8 @@ class local_colle_external extends external_api {
      */
     public static function get_all_user_best_grades($userid = 0) {
         global $DB;
-        $host = 'localhost';
-        $token = '5a4312e6b23ceb3808e9551a5cb03b37';
+        $host = 'colle.southeastasia.cloudapp.azure.com';
+        $token = '1f95ee6650d2e1a6aa6e152f6bf4702c';
 
         $attempts = $DB->get_records_sql(
             "SELECT quiz FROM {quiz_attempts} WHERE userid = :userid AND timefinish != 0",
@@ -464,8 +464,8 @@ class local_colle_external extends external_api {
      */
     public static function get_user_best_grades_by_quiz($quizid, $userid = 0) {
 
-        $host = 'localhost';
-        $token = '5a4312e6b23ceb3808e9551a5cb03b37';
+        $host = 'colle.southeastasia.cloudapp.azure.com';
+        $token = '1f95ee6650d2e1a6aa6e152f6bf4702c';
 
         $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=mod_quiz_get_user_attempts&moodlewsrestformat=json&quizid=$quizid&userid=$userid";
         $response = file_get_contents($url);
