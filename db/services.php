@@ -57,4 +57,12 @@ $functions = array(
         'type' => 'read',
         'capabilities' => '',
     ),
+    'local_colle_get_all_user_best_grades' => array(
+        'classname' => 'local_colle_external',
+        'methodname' => 'get_all_user_best_grades',
+        'classpath' => 'local/colle/externallib.php',
+        'description' => 'Return a list of attempts for the given user.',
+        'type' => 'read',
+        'capabilities' => '',
+    ),
 );
