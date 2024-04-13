@@ -28,4 +28,4 @@ $plugin->component = 'local_colle';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->release   = 'v0.9.0.2';
 $plugin->requires  = 2017051500;
-$plugin->version   = 2024041210;
+$plugin->version   = 2024041213;

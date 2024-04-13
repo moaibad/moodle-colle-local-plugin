@@ -241,8 +241,9 @@ class local_colle_external extends external_api {
                     'id' => $cm['instance'],
                     'name' => $cm['name'],
                     'intro' => $intro,
+                    'total_questions' => $DB->count_records('question_references', array('usingcontextid' => $cm['contextid'])),
                     'url' => $cm['url'],
-                    'created_by' =>  $fullname
+                    'created_by' => $fullname
                 );
             }
         }
@@ -261,6 +262,7 @@ class local_colle_external extends external_api {
                 'id' => new external_value(PARAM_INT, 'id of the quiz'),
                 'name' => new external_value(PARAM_TEXT, 'name of the quiz'),
                 'intro' => new external_value(PARAM_TEXT, 'intro of the quiz'),
+                'total_questions' => new external_value(PARAM_INT, 'total questions of the quiz'),
                 'url' => new external_value(PARAM_TEXT, 'url for the quiz'),
                 'created_by' => new external_value(PARAM_TEXT, 'creator of the quiz'),
             ])
@@ -319,6 +321,7 @@ class local_colle_external extends external_api {
                     'id' => $cm['instance'],
                     'name' => $cm['name'],
                     'intro' => $intro,
+                    'total_questions' => $DB->count_records('question_references', array('usingcontextid' => $cm['contextid'])),
                     'url' => $cm['url'],
                     'created_by' => $fullname
                 );
@@ -340,6 +343,7 @@ class local_colle_external extends external_api {
                 'id' => new external_value(PARAM_INT, 'id of the quiz'),
                 'name' => new external_value(PARAM_TEXT, 'name of the quiz'),
                 'intro' => new external_value(PARAM_TEXT, 'intro of the quiz'),
+                'total_questions' => new external_value(PARAM_INT, 'total questions of the quiz'),
                 'url' => new external_value(PARAM_TEXT, 'url for the quiz'),
                 'created_by' => new external_value(PARAM_TEXT, 'creator of the quiz'),
             ])
