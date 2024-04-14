@@ -561,65 +561,104 @@ class local_colle_external extends external_api {
     }
 
     /**
-     * Describes the parameters for get_user_best_grades_by_quiz().
+     * Parameter description for create_course().
      *
      * @return external_function_parameters.
-     * @since Moodle 4.3
      */
     public static function create_course_parameters() {
-        return new external_function_parameters (
-            [
-                'userid' => new external_value(PARAM_INT, 'user id'),
-                'fullname' => new external_value(PARAM_TEXT, 'user id, empty for current user'),
-                'enrollmentkey' => new external_value(PARAM_RAW, 'user id, empty for current user', VALUE_OPTIONAL),
-            ]
+        return new external_function_parameters(
+            array(
+                'fullname' => new external_value(PARAM_TEXT, 'Full name of the course'),
+                'shortname' => new external_value(PARAM_TEXT, 'Short name of the course'),
+                'enrolmentkey' => new external_value(PARAM_TEXT, 'Enrolment key for the course'),
+                'summary' => new external_value(PARAM_TEXT, 'Summary of the course'),
+            )
         );
     }
 
     /**
-     * Return a list of attempts for the given quiz and user.
+     * Create a new course and set enrolment key.
      *
-     * @return array of warnings and the list of attempts
-     * @since Moodle 4.3
+     * @param string $fullname Full name of the course.
+     * @param string $shortname Short name of the course.
+     * @param string $enrolmentkey Enrolment key for the course.
+     * @param string $summary  Summary of the course.
+     * @return array Result of course creation.
      */
-    public static function create_course($userid, $fullname, $enrollmentkey) {
+    public static function create_course($fullname, $shortname, $enrolmentkey, $summary) {
+        global $DB;
 
-        $host = 'colle.southeastasia.cloudapp.azure.com';
-        $token = '1f95ee6650d2e1a6aa6e152f6bf4702c';
+        $params = self::validate_parameters(self::create_course_parameters(), array(
+            'fullname' => $fullname,
+            'shortname' => $shortname,
+            'enrolmentkey' => $enrolmentkey,
+            'summary' => $summary,
+        ));
 
-        //Hit api course
-        $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=core_course_create_courses&courses[0][fullname]=$fullname&courses[0][shortname]=kelas1&courses[0][categoryid]=1";
-        $response = file_get_contents($url);
-        
-        //Query
-        //Query ke tabel enrol cari record yang course id nya = courseid, enrol self
-        //Kalo nemu ganti status jadi 0
+        // Get the highest sortorder value from the course table.
+        $max_sortorder = $DB->get_field_sql('SELECT MAX(sortorder) FROM {course}');
 
-        //Cek enrollmentkey
-        if($enrollmentkey){
-            //Query ke tabel enrol cari record yang course id nya = courseid, enrol self
-            //Insert password jadi enrollment key
-        }
+        $course = new stdClass();
+        $course->fullname = $params['fullname'];
+        $course->shortname = $params['shortname'];
+        $course->category = 1; // You may specify the category ID here.
+        $course->summary = $params['summary'];; // You may specify the course summary here.
+        $course->summaryformat = 1;
+        $course->showgrades = 1;
+        $course->newsitems = 5;
+        $course->showcompletionconditions = 1;
+        $course->showactivitydates = 1;
+        $course->enablecompletion = 1;
+        $course->format = 'topics'; // You may specify the course format here.
+        $course->startdate = time(); // You may specify the start date of the course here.
+        $course->visible = 1; // You may specify the visibility of the course here.
+        $course->sortorder = $max_sortorder + 1;
+        $course->cacherev = 1; // Initial value for cacherev.
+        // Set the timecreated and timemodified properties.
+        $current_time = time();
+        $course->timecreated = $current_time;
+        $course->timemodified = $current_time;
+        $course->id = $DB->insert_record('course', $course);
 
-        //Enroll manual
-        $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=enrol_manual_enrol_users&moodlewsrestformat=json&enrolments[0][roleid]=5&enrolments[0][userid]=$userid&enrolments[0][courseid]=$courseid";
-        $response = file_get_contents($url);
+        // Set enrolment key.
+        $enrol = new stdClass();
+        $enrol->courseid = $course->id;
+        $enrol->enrol = 'self';
+        $enrol->status = 0;
+        $enrol->name = 'self';
+        $enrol->password = $params['enrolmentkey'];
+        $enrol->roleid = 5;
+        $enrol->customint1 = 0;
+        $enrol->customint2 = 0;
+        $enrol->customint3 = 0;
+        $enrol->customint4 = 1;
+        $enrol->customint5 = 0;
+        $enrol->customint6 = 1;
+        $enrol->timecreated = $current_time;
+        $enrol->timemodified = $current_time;
+        $DB->insert_record('enrol', $enrol);
 
         $result = array();
-        $result['message'] = "success";
+        $result['courseid'] = $course->id;
+        $result['status'] = 'success';
+        $result['message'] = 'Course created successfully with enrolment key set.';
 
         return $result;
     }
 
     /**
-     * Describes the get_user_best_grades_by_quiz return value.
+     * Parameter description for create_course().
      *
-     * @return external_multiple_structure
-     * @since Moodle 4.3
+     * @return external_description
      */
     public static function create_course_returns() {
         return new external_single_structure(
-            array('message' => new external_value(PARAM_TEXT, 'message'),
-    ));
+            array(
+                'courseid' => new external_value(PARAM_INT, 'ID of the created course'),
+                'status' => new external_value(PARAM_ALPHA, 'Status of the course creation'),
+                'message' => new external_value(PARAM_TEXT, 'Message regarding the course creation'),
+            )
+        );
     }
+    
 }
