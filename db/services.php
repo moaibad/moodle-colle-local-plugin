@@ -77,8 +77,8 @@ $functions = array(
         'classname' => 'local_colle_external',
         'methodname' => 'create_course',
         'classpath' => 'local/colle/externallib.php',
-        'description' => 'Create course via Web Service API.',
-        'type' => 'read',
+        'description' => 'Create a new course and set enrolment key.',
+        'type' => 'write',
         'capabilities' => '',
-    ),
+    ),    
 );
