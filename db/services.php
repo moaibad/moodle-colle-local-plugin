@@ -73,4 +73,12 @@ $functions = array(
         'type' => 'read',
         'capabilities' => '',
     ),
+    'local_colle_create_course' => array(
+        'classname' => 'local_colle_external',
+        'methodname' => 'create_course',
+        'classpath' => 'local/colle/externallib.php',
+        'description' => 'Create course via Web Service API.',
+        'type' => 'read',
+        'capabilities' => '',
+    ),
 );

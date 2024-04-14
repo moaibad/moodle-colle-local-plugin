@@ -526,4 +526,85 @@ class local_colle_external extends external_api {
             ])
         );
     }
+
+    /**
+     * Describes the get_user_best_grades return value.
+     *
+     * @return external_multiple_structure
+     * @since Moodle 4.3
+     */
+    public static function get_all_user_best_grades_returns() {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'name' => new external_value(PARAM_TEXT, 'quiz name'),
+                'status' => new external_value(PARAM_TEXT, 'quiz status'),
+                'timefinish' => new external_value(PARAM_TEXT, 'time finish'),
+                'sumgrades' => new external_value(PARAM_INT, 'user best grades'),
+                'url' => new external_value(PARAM_TEXT, 'review url')
+            ])
+        );
+    }
+
+    /**
+     * Describes the parameters for get_user_best_grades_by_quiz().
+     *
+     * @return external_function_parameters.
+     * @since Moodle 4.3
+     */
+    public static function create_course_parameters() {
+        return new external_function_parameters (
+            [
+                'userid' => new external_value(PARAM_INT, 'user id'),
+                'fullname' => new external_value(PARAM_TEXT, 'user id, empty for current user'),
+                'enrollmentkey' => new external_value(PARAM_RAW, 'user id, empty for current user', VALUE_OPTIONAL),
+            ]
+        );
+    }
+
+    /**
+     * Return a list of attempts for the given quiz and user.
+     *
+     * @return array of warnings and the list of attempts
+     * @since Moodle 4.3
+     */
+    public static function create_course($userid, $fullname, $enrollmentkey) {
+
+        $host = 'colle.southeastasia.cloudapp.azure.com';
+        $token = '1f95ee6650d2e1a6aa6e152f6bf4702c';
+
+        //Hit api course
+        $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=core_course_create_courses&courses[0][fullname]=$fullname&courses[0][shortname]=kelas1&courses[0][categoryid]=1";
+        $response = file_get_contents($url);
+        
+        //Query
+        //Query ke tabel enrol cari record yang course id nya = courseid, enrol self
+        //Kalo nemu ganti status jadi 0
+
+        //Cek enrollmentkey
+        if($enrollmentkey){
+            //Query ke tabel enrol cari record yang course id nya = courseid, enrol self
+            //Insert password jadi enrollment key
+        }
+
+        //Enroll manual
+        $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=enrol_manual_enrol_users&moodlewsrestformat=json&enrolments[0][roleid]=5&enrolments[0][userid]=$userid&enrolments[0][courseid]=$courseid";
+        $response = file_get_contents($url);
+
+        $result = array();
+        $result['message'] = "success";
+
+        return $result;
+    }
+
+    /**
+     * Describes the get_user_best_grades_by_quiz return value.
+     *
+     * @return external_multiple_structure
+     * @since Moodle 4.3
+     */
+    public static function create_course_returns() {
+        return new external_single_structure(
+            array('message' => new external_value(PARAM_TEXT, 'message'),
+    ));
+    }
 }
