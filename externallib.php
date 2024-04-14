@@ -387,37 +387,52 @@ class local_colle_external extends external_api {
         }
         if ($quizids != null) {
             $quizidsunique = array_unique($quizids);
-        }
-
-        foreach ($quizidsunique as $quizid) {
-            $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=mod_quiz_get_user_attempts&moodlewsrestformat=json&quizid=$quizid&userid=$userid";
-            $response = file_get_contents($url);
-            $data = json_decode($response, true);
-            $highest_sumgrades = 0;
-            $attemptid = 0;
-            $instance = 0; // quiz id
-            foreach ($data['attempts'] as $attempt) {
-                if ($attempt['sumgrades'] >= $highest_sumgrades) {
-                    $highest_sumgrades = $attempt['sumgrades'];
-                    $attemptid = $attempt['id'];
-                    $instance = $attempt['quiz'];
-                    $state = $attempt['state'];
-                    $timefinish = $attempt['timefinish'];
+            foreach ($quizidsunique as $quizid) {
+                $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=mod_quiz_get_user_attempts&moodlewsrestformat=json&quizid=$quizid&userid=$userid";
+                $response = file_get_contents($url);
+                $data = json_decode($response, true);
+                $highest_sumgrades = 0;
+                $attemptid = 0;
+                $instance = 0; // quiz id
+                foreach ($data['attempts'] as $attempt) {
+                    if ($attempt['sumgrades'] >= $highest_sumgrades) {
+                        $highest_sumgrades = $attempt['sumgrades'];
+                        $attemptid = $attempt['id'];
+                        $instance = $attempt['quiz'];
+                        $state = $attempt['state'];
+                        $timefinish = $attempt['timefinish'];
+                    }
                 }
+                $timefinishstr = date('Y-m-d H:i:s', $timefinish);
+                $quiz_grades = $DB->get_record_sql(
+                    "SELECT grade FROM {quiz_grades} WHERE userid = :userid AND quiz = :quizid",
+                    [
+                        'userid' => $userid,
+                        'quizid' => $instance
+                    ]
+                );
+    
+                $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=core_course_get_course_module_by_instance&moodlewsrestformat=json&module=quiz&instance=$instance";
+                $response = file_get_contents($url);
+                $data = json_decode($response, true);
+                $cmid = $data['cm']['id'];
+                $cmname = $data['cm']['name'];
+                $result[] = array(
+                    'name' => $cmname,
+                    'status' => $state,
+                    'timefinish' => $timefinishstr,
+                    'grade' => $quiz_grades->grade,
+                    'url' => "http://$host/moodle/mod/quiz/review.php?attempt=$attemptid&cmid=$cmid"
+                );
             }
-            $timefinishstr = date('Y-m-d H:i:s', $timefinish);
-
-            $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=core_course_get_course_module_by_instance&moodlewsrestformat=json&module=quiz&instance=$instance";
-            $response = file_get_contents($url);
-            $data = json_decode($response, true);
-            $cmid = $data['cm']['id'];
-            $cmname = $data['cm']['name'];
+        }
+        else {
             $result[] = array(
-                'name' => $cmname,
-                'status' => $state,
-                'timefinish' => $timefinishstr,
-                'sumgrades' => $highest_sumgrades,
-                'url' => "http://$host/moodle/mod/quiz/review.php?attempt=$attemptid&cmid=$cmid"
+                'name' => "",
+                'status' => "Student has not finished any quiz.",
+                'timefinish' => "",
+                'grade' => 0.0,
+                'url' => ""
             );
         }
 
@@ -436,7 +451,7 @@ class local_colle_external extends external_api {
                 'name' => new external_value(PARAM_TEXT, 'quiz name'),
                 'status' => new external_value(PARAM_TEXT, 'quiz status'),
                 'timefinish' => new external_value(PARAM_TEXT, 'time finish'),
-                'sumgrades' => new external_value(PARAM_INT, 'user best grades'),
+                'grade' => new external_value(PARAM_FLOAT, 'user best grades'),
                 'url' => new external_value(PARAM_TEXT, 'review url')
             ])
         );
