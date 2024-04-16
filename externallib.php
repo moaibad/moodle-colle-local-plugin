@@ -566,14 +566,13 @@ class local_colle_external extends external_api {
      * @return external_function_parameters.
      */
     public static function create_course_parameters() {
-        return new external_function_parameters(
-            array(
-                'fullname' => new external_value(PARAM_TEXT, 'Full name of the course'),
-                'shortname' => new external_value(PARAM_TEXT, 'Short name of the course'),
-                'enrolmentkey' => new external_value(PARAM_TEXT, 'Enrolment key for the course'),
-                'summary' => new external_value(PARAM_TEXT, 'Summary of the course'),
-            )
-        );
+        return new external_function_parameters([
+            'fullname' => new external_value(PARAM_TEXT, 'Nama lengkap kursus'),
+            'shortname' => new external_value(PARAM_TEXT, 'Nama singkat kursus'),
+            'enrolmentkey' => new external_value(PARAM_TEXT, 'Enrolment key for the course'),
+            'summary' => new external_value(PARAM_TEXT, 'Summary of the course'),
+            'userid' => new external_value(PARAM_INT, 'User id of the teacher'),
+        ]);
     }
 
     /**
@@ -585,63 +584,59 @@ class local_colle_external extends external_api {
      * @param string $summary  Summary of the course.
      * @return array Result of course creation.
      */
-    public static function create_course($fullname, $shortname, $enrolmentkey, $summary) {
+    public static function create_course($fullname, $shortname, $summary, $enrolmentkey, $userid) {
         global $DB;
+        $host = 'colle.southeastasia.cloudapp.azure.com';
+        $token = '1f95ee6650d2e1a6aa6e152f6bf4702c';
+    
+        $fullname_encoded = urlencode($fullname);
+        $shortname_encoded = urlencode($shortname);
+        $summary_encoded = urlencode($summary);
+        $userid_encoded = urlencode($userid);
 
-        $params = self::validate_parameters(self::create_course_parameters(), array(
-            'fullname' => $fullname,
-            'shortname' => $shortname,
-            'enrolmentkey' => $enrolmentkey,
-            'summary' => $summary,
-        ));
+        $courseid1 = $DB->get_field_sql('SELECT MAX(id) FROM {course}');
+    
+        // Susun URL dengan nilai-nilai parameter yang sudah diencode
+        $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=core_course_create_courses&moodlewsrestformat=json&courses[0][fullname]=$fullname_encoded&courses[0][shortname]=$shortname_encoded&courses[0][summary]=$summary_encoded&&courses[0][categoryid]=1";
+    
+        $curl = curl_init($url);
+        // Execute cURL request
+        curl_exec($curl);
+        curl_close($curl);
 
-        // Get the highest sortorder value from the course table.
-        $max_sortorder = $DB->get_field_sql('SELECT MAX(sortorder) FROM {course}');
-
-        $course = new stdClass();
-        $course->fullname = $params['fullname'];
-        $course->shortname = $params['shortname'];
-        $course->category = 1; // You may specify the category ID here.
-        $course->summary = $params['summary'];; // You may specify the course summary here.
-        $course->summaryformat = 1;
-        $course->showgrades = 1;
-        $course->newsitems = 5;
-        $course->showcompletionconditions = 1;
-        $course->showactivitydates = 1;
-        $course->enablecompletion = 1;
-        $course->format = 'topics'; // You may specify the course format here.
-        $course->startdate = time(); // You may specify the start date of the course here.
-        $course->visible = 1; // You may specify the visibility of the course here.
-        $course->sortorder = $max_sortorder + 1;
-        $course->cacherev = 1; // Initial value for cacherev.
-        // Set the timecreated and timemodified properties.
-        $current_time = time();
-        $course->timecreated = $current_time;
-        $course->timemodified = $current_time;
-        $course->id = $DB->insert_record('course', $course);
-
-        // Set enrolment key.
-        $enrol = new stdClass();
-        $enrol->courseid = $course->id;
-        $enrol->enrol = 'self';
-        $enrol->status = 0;
-        $enrol->name = 'self';
-        $enrol->password = $params['enrolmentkey'];
-        $enrol->roleid = 5;
-        $enrol->customint1 = 0;
-        $enrol->customint2 = 0;
-        $enrol->customint3 = 0;
-        $enrol->customint4 = 1;
-        $enrol->customint5 = 0;
-        $enrol->customint6 = 1;
-        $enrol->timecreated = $current_time;
-        $enrol->timemodified = $current_time;
-        $DB->insert_record('enrol', $enrol);
-
+        $courseid2 = $DB->get_field_sql('SELECT MAX(id) FROM {course}');
         $result = array();
-        $result['courseid'] = $course->id;
-        $result['status'] = 'success';
-        $result['message'] = 'Course created successfully with enrolment key set.';
+
+        if ($courseid1 === $courseid2) {
+            $courseid = null;
+            $result['message'] = 'Failed to update enrol table.';
+        } else {
+            $courseid = $courseid2;
+        
+            $enrol = $DB->get_record('enrol', array('enrol' => 'self', 'courseid' => $courseid));
+        
+            if ($enrol) {
+                $enrol->status = 0;
+                $enrol->password = $enrolmentkey;
+        
+                // Eksekusi update
+                if (!$DB->update_record('enrol', $enrol)) {
+                    $result['message'] = 'Failed to update enrol table.';
+                } else {
+                    $result['message'] = 'Enrol table updated successfully, User assigned.';
+                    $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=enrol_manual_enrol_users&moodlewsrestformat=json&enrolments[0][roleid]=5&enrolments[0][userid]=$userid_encoded&enrolments[0][courseid]=$courseid";
+    
+                    $curl = curl_init($url);
+                    curl_exec($curl);
+                    curl_close($curl);
+                }
+            } else {
+                // Handle jika tidak ada objek enrol yang ditemukan
+                $result['message'] = 'No enrol record found';
+            }
+        }
+        
+        $result['courseid'] = $courseid;
 
         return $result;
     }
@@ -655,7 +650,6 @@ class local_colle_external extends external_api {
         return new external_single_structure(
             array(
                 'courseid' => new external_value(PARAM_INT, 'ID of the created course'),
-                'status' => new external_value(PARAM_ALPHA, 'Status of the course creation'),
                 'message' => new external_value(PARAM_TEXT, 'Message regarding the course creation'),
             )
         );
