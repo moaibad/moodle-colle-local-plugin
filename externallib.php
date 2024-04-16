@@ -543,24 +543,6 @@ class local_colle_external extends external_api {
     }
 
     /**
-     * Describes the get_user_best_grades return value.
-     *
-     * @return external_multiple_structure
-     * @since Moodle 4.3
-     */
-    // public static function get_all_user_best_grades_returns() {
-    //     return new external_multiple_structure(
-    //         new external_single_structure([
-    //             'name' => new external_value(PARAM_TEXT, 'quiz name'),
-    //             'status' => new external_value(PARAM_TEXT, 'quiz status'),
-    //             'timefinish' => new external_value(PARAM_TEXT, 'time finish'),
-    //             'sumgrades' => new external_value(PARAM_INT, 'user best grades'),
-    //             'url' => new external_value(PARAM_TEXT, 'review url')
-    //         ])
-    //     );
-    // }
-
-    /**
      * Parameter description for create_course().
      *
      * @return external_function_parameters.
