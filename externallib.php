@@ -566,7 +566,7 @@ class local_colle_external extends external_api {
      * @param string $summary  Summary of the course.
      * @return array Result of course creation.
      */
-    public static function create_course($fullname, $shortname, $summary, $enrolmentkey, $userid) {
+    public static function create_course($fullname, $shortname, $enrolmentkey, $summary, $userid) {
         global $DB;
         $host = 'colle.southeastasia.cloudapp.azure.com';
         $token = '1f95ee6650d2e1a6aa6e152f6bf4702c';
@@ -606,7 +606,7 @@ class local_colle_external extends external_api {
                     $result['message'] = 'Failed to update enrol table.';
                 } else {
                     $result['message'] = 'Enrol table updated successfully, User assigned.';
-                    $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=enrol_manual_enrol_users&moodlewsrestformat=json&enrolments[0][roleid]=5&enrolments[0][userid]=$userid_encoded&enrolments[0][courseid]=$courseid";
+                    $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=enrol_manual_enrol_users&moodlewsrestformat=json&enrolments[0][roleid]=3&enrolments[0][userid]=$userid_encoded&enrolments[0][courseid]=$courseid";
     
                     $curl = curl_init($url);
                     curl_exec($curl);
