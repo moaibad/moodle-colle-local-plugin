@@ -37,10 +37,10 @@ require_once($CFG->libdir . '/moodlelib.php');
  */
 class local_colle_external extends external_api {
 
-    // Functionset for get_roles() ************************************************************************************************.
+    // Functionset for create_quiz() ************************************************************************************************.
 
     /**
-     * Parameter description for get_roles().
+     * Parameter description for create_quiz().
      *
      * @return external_function_parameters.
      */
@@ -49,6 +49,8 @@ class local_colle_external extends external_api {
             array(
                 'courseid' => new external_value(PARAM_INT, 'course id'),
                 'quizname' => new external_value(PARAM_TEXT, 'quiz name'),
+                'intro' => new external_value(PARAM_TEXT, 'quiz description'),
+                'userid' => new external_value(PARAM_INT, 'owner quiz')
             )
         );
     }
@@ -62,10 +64,10 @@ class local_colle_external extends external_api {
      * @param array $quizname List of role shortnames.
      * @return array Array of arrays with role informations.
      */
-    public static function create_quiz($courseid, $quizname) {
+    public static function create_quiz($courseid, $quizname, $intro, $userid) {
         global $DB;
         $params = self::validate_parameters(self::create_quiz_parameters(), array('courseid' => $courseid,
-                    'quizname' => $quizname,));
+                    'quizname' => $quizname, 'intro' => $intro, 'userid' => $userid));
 
         $q_param = array('courseid' => $params['courseid'],
             'quizname' => $params['quizname']);
@@ -83,7 +85,7 @@ class local_colle_external extends external_api {
             $quiz = new stdClass();
             $quiz->course = $courseid;
             $quiz->name = $quizname;
-            $quiz->intro = "Ini adalah quiz yang dibuat melalui API";
+            $quiz->intro = $intro;
             $quiz->timecreated = time();
             $quiz->overduehandling = "autosubmit";
 	    $quiz->preferredbehaviour = "deferredfeedback";
@@ -127,19 +129,35 @@ class local_colle_external extends external_api {
         $qs->quizid = $instanceid;
         $qs->firstslot = 1;
         $DB->insert_record('quiz_sections', $qs);
-        
 
+        $host = 'colle.southeastasia.cloudapp.azure.com';
+        $token = '1f95ee6650d2e1a6aa6e152f6bf4702c';
+
+        $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=core_course_get_contents&moodlewsrestformat=json&courseid=$courseid";
+        $response = file_get_contents($url);
+
+        $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=local_wscreatequiz_context_id&moodlewsrestformat=json&courseid=$courseid&quizid=$rqa";
+        $response = file_get_contents($url);
+        $data = json_decode($response, true);
+        $contextid = $data['contextid'];
+
+        $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=core_role_assign_roles&moodlewsrestformat=json&assignments[0][roleid]=3&assignments[0][userid]=$userid&assignments[0][contextid]=$contextid&assignments[0][contextlevel]=module";
+        $response = file_get_contents($url);
+
+        $result['userid'] = $userid;
+        
         return $result;
     }
 
     /**
-     * Parameter description for create_sections().
+     * Parameter description for create_quiz().
      *
      * @return external_description
      */
     public static function create_quiz_returns() {
         return new external_single_structure(
                         array('quizid' => new external_value(PARAM_INT, 'id of quiz'),
+                            'userid' => new external_value(PARAM_INT, 'owner quiz'),
                             'status' => new external_value(PARAM_ALPHA, "Status of quiz"),
                             'message' => new external_value(PARAM_TEXT, "quiz message")
                 ));
