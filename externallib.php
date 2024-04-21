@@ -136,7 +136,7 @@ class local_colle_external extends external_api {
         $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=core_course_get_contents&moodlewsrestformat=json&courseid=$courseid";
         $response = file_get_contents($url);
 
-        $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=local_wscreatequiz_context_id&moodlewsrestformat=json&courseid=$courseid&quizid=$rqa";
+        $url = "http://$host/moodle/webservice/rest/server.php?wstoken=$token&wsfunction=local_colle_get_context_id&moodlewsrestformat=json&courseid=$courseid&quizid=$rqa";
         $response = file_get_contents($url);
         $data = json_decode($response, true);
         $contextid = $data['contextid'];
