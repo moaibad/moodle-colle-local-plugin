@@ -88,7 +88,13 @@ class local_colle_external extends external_api {
             $quiz->intro = $intro;
             $quiz->timecreated = time();
             $quiz->overduehandling = "autosubmit";
-	    $quiz->preferredbehaviour = "deferredfeedback";
+	        $quiz->preferredbehaviour = "deferredfeedback";
+            $quiz->grade = 10.0;
+            $quiz->reviewattempt = 69888;
+            $quiz->reviewcorrectness = 4352;
+            $quiz->reviewmaxmarks = 69888;
+            $quiz->reviewmarks = 4352;
+            $quiz->reviewrightanswer = 4352;
             $rqa = $DB->insert_record('quiz', $quiz);
             if (isset($rqa)) {
                 $result = array();
