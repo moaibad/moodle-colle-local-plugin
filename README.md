@@ -171,3 +171,5 @@ Aplikasi Colle menggunakan service REST API dari Moodle. Beberapa service terseb
 - Annisa Dinda Gantini
 - Maolana Firmansyah
 - Salma Edyna Putri
+- Berliana Elfada
+- Yane Pradita
