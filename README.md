@@ -215,6 +215,22 @@ Aplikasi Colle menggunakan service REST API dari Moodle. Beberapa service terseb
   ```
 - **Description**: Return created quiz by user.
 
+## Referensi Tambahan
+
+- **Moodle Web Service API**
+  - TechGyan. (2023). Enable Web Service API. YouTube. Retrieved from [Moodle Web Services: A Step-by-Step Guide to Integration and Usage | Moodle Web Service | Moodle API - Panduan YouTube](https://www.youtube.com/watch?v=Ud139zt2s8c&ab_channel=TechGyan)
+- **Enable Oauth2 untuk login menggunakan Google**
+  - TechGyan. (2023). Enable Oauth2 untuk login mengunakan moodle. YouTube. Retrieved from [Moodle Tutorial: Seamless Login with Google Integration | Login with Google in Moodle - Panduan YouTube](https://www.youtube.com/watch?v=wwpLihMceDE&t=1s&ab_channel=TechGyan)
+- **Course Module Documentation**
+  - Moodle. (2023). Course Module. Moodle Docs. Retrieved from [Course Moodle - Moodle Documentation](https://docs.moodle.org/dev/Course_module)
+- **Membuat Custom Web Service API**
+  - MoodleDev. (2023). Writing a Service. MoodleDev Docs. Retrieved from [Service - Moodle Developer Documentation](https://moodledev.io/docs/apis/subsystems/external/writing-a-service)
+  - Moodle Forum. (2021). Creating a Custom Web Service. Retrieved from [Custom Web Service - Moodle Forum](https://moodle.org/mod/forum/discuss.php?d=420503)
+  - MoodleDev. (2023). Core DML. MoodleDev Docs. Retrieved from [Core DML - Moodle Developer Documentation](https://moodledev.io/docs/apis/core/dm)
+  - GitHub. (2023). Moodle Local WSManager. Retrieved from [Moodle Local WSManager - GitHub](https://github.com/liliapro/moodle-local_wsmanager)
+- **Course Module Documentation**
+  - Moodle. (2023). Login Token. Moodle Docs. Retrieved from [Course Moodle Documentation](https://docs.moodle.org/dev/Course_module)
+
 ## Authors
 
 - Mohammad Fathul'ibad
